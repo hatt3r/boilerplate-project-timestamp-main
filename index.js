@@ -20,49 +20,20 @@ app.get("/", function (req, res) {
 
 
 // your first API endpoint... 
-app.get("/api/timestamp", function(req, res) {
+app.get("/api/:date?", (req, res) => {
+  const dateParam = req.params.date; 
+  const dateObject = new Date(dateParam); 
 
-  const date = new Date();
-
-  res.json({
-    "unix": date.valueOf(),
-    "utc": date.toUTCString()
-  });
-
-});
-
-app.get("/api/timestamp/:dateParam", function(req, res) {
-
-  let dateParam = req.params.dateParam;
-
-  if (/^\d{5,}$/.test(dateParam))
-    dateParam = parseInt(dateParam);
-    
-  const date = new Date(dateParam);
-
-  if (date.toString() == "Invalid Date") {
-
-    res.json({
-      "error": "Invalid Date"
-    });
-
-  } else {
-
-    res.json({
-      "unix": date.valueOf(),
-      "utc": date.toUTCString()
-    });
-
+  if (isNaN(dateObject.getTime())) {
+    return res.json({ error : "Invalid Date" }); 
   }
 
-});
+  const unixTimeStamp = dateObject.getTime(); 
+  const utcString = dateObject.toUTCString(); 
 
-// No matching route
-app.use(function(req, res, next) {
+  res.json({ unix: unixTimeStamp, utc: utcString }); 
+}); 
 
-  res.status(404).sendFile(`${__dirname}/views/404.html`);
-
-});
 
 
 // Listen on port set in environment variable or default to 3000
